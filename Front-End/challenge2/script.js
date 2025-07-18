@@ -22,6 +22,7 @@ const setupEventListeners = () => {
   //NumberButtons
   numberButtons.forEach(btn => btn.addEventListener('click', () => handleNumberButtons(btn)));
   //OperationButtons
+  operationButtons.forEach(btn => btn.addEventListener('click', () => handleOperationButtons(btn)))
 }
 
 const handleNumberButtons = (btn) => {
@@ -38,6 +39,57 @@ const handleNumberButtons = (btn) => {
     updateResult();
 }
 
+const handleOperationButtons = (btn) => {
+  const { input, firstNumber, operator } = calculatorState;
+
+  const operation = btn.textContent;
+  const inputValue = parseFloat(input);
+  
+  if (operation === '=') {
+    if (firstNumber !== null && operator) {
+      calculate(inputValue);
+    }
+    return;
+  }
+  
+  if (firstNumber === null) {
+    calculatorState.firstNumber = inputValue;
+  } else if (operator) {
+    calculate(inputValue);
+  }
+  
+  calculatorState.operator = operation;
+  calculatorState.waitingForSecondNumber = true;
+}
+
+const calculate = (secondNumber) => {
+  const { firstNumber, operator } = calculatorState;
+  let result;
+  
+  switch (operator) {
+    case '+':
+      result = firstNumber + secondNumber; 
+      break;
+    case '-': 
+      result = firstNumber - secondNumber; 
+      break;
+    case 'X': 
+      result = firstNumber * secondNumber;
+      break;
+    case '/': 
+      result = firstNumber / secondNumber;
+      break;
+    default: 
+      return;
+  }
+  
+  calculatorState.input = String(result);
+
+  updateResult();
+}
+
+
 initCalculator();
+
 
 
