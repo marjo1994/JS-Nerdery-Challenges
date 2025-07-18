@@ -7,6 +7,7 @@ const calculatorState = {
   firstNumber: null,
   operator: null,
   waitingForSecondNumber: false,
+  shouldResetInput: true
 };
 
 const initCalculator = () => {
@@ -14,28 +15,39 @@ const initCalculator = () => {
   updateResult();
 }
 
+//Display result
 const updateResult = () => {
   showResult.textContent = calculatorState.input;
 }
 
 const setupEventListeners = () => {
-  //NumberButtons
+  //Click on each number button
   numberButtons.forEach(btn => btn.addEventListener('click', () => handleNumberButtons(btn)));
-  //OperationButtons
+  //Click on each operation button
   operationButtons.forEach(btn => btn.addEventListener('click', () => handleOperationButtons(btn)))
 }
 
 const handleNumberButtons = (btn) => {
-    const { input, waitingForSecondNumber } = calculatorState;
+    const { input, waitingForSecondNumber, shouldResetInput } = calculatorState;
 
     const number = btn.textContent;
-        
-    if (waitingForSecondNumber) {
-        calculatorState.input = number;
-        calculatorState.waitingForSecondNumber = false;
+    
+    if (shouldResetInput) {
+      //After an operation, reset input.
+      console.log('reset');
+      calculatorState.input = number;
+      calculatorState.shouldResetInput = false;
+      calculatorState.waitingForSecondNumber = false;
+    } else if (waitingForSecondNumber) {
+      //After click on a operator, waiting for the second number.
+      console.log('b number');
+      calculatorState.input = number;
+      calculatorState.waitingForSecondNumber = false;
     } else {
-        calculatorState.input = input === '0' ? number : input + number;
+      //Store the input.
+      calculatorState.input = input === '0' ? number : input + number;
     }
+
     updateResult();
 }
 
@@ -45,23 +57,29 @@ const handleOperationButtons = (btn) => {
   const operation = btn.textContent;
   const inputValue = parseFloat(input);
   
+  //Calculate the result of operation
   if (operation === '=') {
     if (firstNumber !== null && operator) {
       calculate(inputValue);
+      calculatorState.operator = null;
     }
+    calculatorState.shouldResetInput = true;
     return;
   }
-  
-  if (firstNumber === null) {
-    calculatorState.firstNumber = inputValue;
-  } else if (operator) {
+
+  //Do consecutive operations
+  if (operator && !calculatorState.waitingForSecondNumber) {
     calculate(inputValue);
   }
-  
+
+  calculatorState.firstNumber = parseFloat(calculatorState.input);
   calculatorState.operator = operation;
   calculatorState.waitingForSecondNumber = true;
+  calculatorState.shouldResetInput = true;
 }
 
+
+//Calculate operations as +, -, x, /
 const calculate = (secondNumber) => {
   const { firstNumber, operator } = calculatorState;
   let result;
@@ -77,6 +95,10 @@ const calculate = (secondNumber) => {
       result = firstNumber * secondNumber;
       break;
     case '/': 
+      if (secondNumber === 0) {
+        alert("Error: Can't divide by zero");
+        return;
+      }
       result = firstNumber / secondNumber;
       break;
     default: 
@@ -84,6 +106,7 @@ const calculate = (secondNumber) => {
   }
   
   calculatorState.input = String(result);
+  calculatorState.firstNumber = result;
 
   updateResult();
 }
