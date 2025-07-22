@@ -6,7 +6,6 @@ const calculatorState = {
   input: '0',
   firstNumber: null,
   operator: null,
-  waitingForSecondNumber: false,
   shouldResetInput: true
 };
 
@@ -28,21 +27,15 @@ const setupEventListeners = () => {
 }
 
 const handleNumberButtons = (btn) => {
-    const { input, waitingForSecondNumber, shouldResetInput } = calculatorState;
+    const { input, shouldResetInput } = calculatorState;
 
     const number = btn.textContent;
     
     if (shouldResetInput) {
       //After an operation, reset input.
-      console.log('reset');
+      //After a number, reset input.
       calculatorState.input = number;
       calculatorState.shouldResetInput = false;
-      calculatorState.waitingForSecondNumber = false;
-    } else if (waitingForSecondNumber) {
-      //After click on a operator, waiting for the second number.
-      console.log('b number');
-      calculatorState.input = number;
-      calculatorState.waitingForSecondNumber = false;
     } else {
       //Store the input.
       calculatorState.input = input === '0' ? number : input + number;
@@ -52,8 +45,7 @@ const handleNumberButtons = (btn) => {
 }
 
 const handleOperationButtons = (btn) => {
-  const { input, firstNumber, operator } = calculatorState;
-
+  const { input, firstNumber, operator, shouldResetInput } = calculatorState;
   const operation = btn.textContent;
   const inputValue = parseFloat(input);
   
@@ -62,19 +54,21 @@ const handleOperationButtons = (btn) => {
     if (firstNumber !== null && operator) {
       calculate(inputValue);
       calculatorState.operator = null;
+      calculatorState.shouldResetInput = true;
     }
-    calculatorState.shouldResetInput = true;
     return;
   }
 
-  //Do consecutive operations
-  if (operator && !calculatorState.waitingForSecondNumber) {
+  
+  //!shouldResetInput, avoid select an operator after another operator.
+  if (operator && !shouldResetInput) {
     calculate(inputValue);
   }
 
-  calculatorState.firstNumber = parseFloat(calculatorState.input);
-  calculatorState.operator = operation;
-  calculatorState.waitingForSecondNumber = true;
+  //Prepare for the next operation, store values as firstNumber, operator and shouldResetInput.
+  calculatorState.firstNumber = parseFloat(calculatorState.input); // Se asigna el valor del input al número que se ingresa o que se obtiene último para el caso de las operaciones consecutivas
+  calculatorState.operator = operation; // Se asigna el operation a la variable operator
+  //calculatorState.waitingForSecondNumber = true;
   calculatorState.shouldResetInput = true;
 }
 
