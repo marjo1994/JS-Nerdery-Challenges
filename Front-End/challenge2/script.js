@@ -43,18 +43,14 @@ const handleOperationButtons = (btn) => {
   const operation = btn.textContent;
   const inputValue = parseFloat(input);
   
-  if (operation === '=') {
-    if (firstNumber !== null && operator) {
+  if (operation === '=' && firstNumber !== null && operator) {
       calculate(inputValue);
       calculatorState.operator = null;
       calculatorState.shouldResetInput = true;
-      
       return;
-    }
   }
 
-  
-//Process chained ops when new operator pressed with pending op
+  //Process chained ops when new operator pressed with pending op
   if (operator && !shouldResetInput) {
     calculate(inputValue);
   }
