@@ -14,15 +14,12 @@ const initCalculator = () => {
   updateResult();
 }
 
-//Display result
 const updateResult = () => {
   showResult.textContent = calculatorState.input;
 }
 
 const setupEventListeners = () => {
-  //Click on each number button
   numberButtons.forEach(btn => btn.addEventListener('click', () => handleNumberButtons(btn)));
-  //Click on each operation button
   operationButtons.forEach(btn => btn.addEventListener('click', () => handleOperationButtons(btn)))
 }
 
@@ -32,12 +29,9 @@ const handleNumberButtons = (btn) => {
     const number = btn.textContent;
     
     if (shouldResetInput) {
-      //After an operation, reset input.
-      //After a number, reset input.
       calculatorState.input = number;
       calculatorState.shouldResetInput = false;
     } else {
-      //Store the input.
       calculatorState.input = input === '0' ? number : input + number;
     }
 
@@ -49,31 +43,28 @@ const handleOperationButtons = (btn) => {
   const operation = btn.textContent;
   const inputValue = parseFloat(input);
   
-  //Calculate the result of operation
   if (operation === '=') {
     if (firstNumber !== null && operator) {
       calculate(inputValue);
       calculatorState.operator = null;
       calculatorState.shouldResetInput = true;
+      
+      return;
     }
-    return;
   }
 
   
-  //!shouldResetInput, avoid select an operator after another operator.
+//Process chained ops when new operator pressed with pending op
   if (operator && !shouldResetInput) {
     calculate(inputValue);
   }
 
-  //Prepare for the next operation, store values as firstNumber, operator and shouldResetInput.
-  calculatorState.firstNumber = parseFloat(calculatorState.input); // Se asigna el valor del input al número que se ingresa o que se obtiene último para el caso de las operaciones consecutivas
-  calculatorState.operator = operation; // Se asigna el operation a la variable operator
-  //calculatorState.waitingForSecondNumber = true;
+  calculatorState.firstNumber = parseFloat(calculatorState.input); // Persists current input as first operand for operator chaining (e.g. 5 + 3 + 2)
+  calculatorState.operator = operation; 
   calculatorState.shouldResetInput = true;
 }
 
 
-//Calculate operations as +, -, x, /
 const calculate = (secondNumber) => {
   const { firstNumber, operator } = calculatorState;
   let result;
