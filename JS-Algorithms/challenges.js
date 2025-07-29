@@ -12,10 +12,15 @@ Example:
 Invoking "readableTime(3690)" should return "01:01:30" (HH:MM:SS)
 ***** */
 
+const TIME_CONVERSION = {
+  SECONDS_PER_HOUR: 3600,
+  SECONDS_PER_MINUTE: 60
+};
+
 const readableTime = (seconds) => {
-  const hours = Math.floor(seconds/3600);
-  const minutes = Math.floor(seconds % 3600 / 60);
-  const restSeconds = seconds % 60;
+  const hours = Math.floor(seconds/TIME_CONVERSION.SECONDS_PER_HOUR);
+  const minutes = Math.floor(seconds % TIME_CONVERSION.SECONDS_PER_HOUR / TIME_CONVERSION.SECONDS_PER_MINUTE);
+  const restSeconds = seconds % TIME_CONVERSION.SECONDS_PER_MINUTE;
 
   const hoursStr = String(hours).padStart(2, 0);
   const minutesStr = String(minutes).padStart(2, 0);
